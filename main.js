@@ -132,6 +132,7 @@ function setup() {
   createCanvas(screenLayout.screenWidth, screenLayout.screenHeight);
 
   // Initialize the 2D array for minimapImg
+  
   minimapImg = Array(totalNumberOfPlanets).fill().map(() => []);
 
   // Calculate total expected images
