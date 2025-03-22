@@ -12,7 +12,7 @@ let minimapImg = []; // jenskh
 
 let imagesLoaded = 0; // Counter to track loaded images
 let totalNumberOfPlanets = 5;
-let totalImagesPerPlanet = [145, 151, 75, 251, 125]; // Number of frames for each planet
+let totalImagesPerPlanet = [1317, 2190, 75, 251, 125]; // Number of frames for each planet
 
 // Add these variables for debugging and tracking
 let totalExpectedImages = 0;
@@ -23,6 +23,7 @@ let debugFrameCount = 0;
 //let totalImages = 854; 
 //let totalImages = 145; 
 let animationReady = false;
+
 
 const detailsLevel = {
   showStarSystem: true,
@@ -44,6 +45,7 @@ const screenLayout = {
 };
 
 const gameConstants = {
+  planetTurnSpeed: 1, // 1 == fastest, 20 == slowest
   bulletSpeed: 2,
   //canonTowerShootingInterval: 1000,
   diameterFlight: 100, // can be adjusted
@@ -98,7 +100,7 @@ function loadNextBatchForPlanet(planetIndex, batchIndex) {
 
     for (let i = start; i < end; i++) {
       minimapImg[planetIndex][i] = loadImage(
-        `images/planet${planetIndex}/minimap/planetA_${i}.png`,
+        `images/planet${planetIndex}/minimap/planet${planetIndex}_${i}.png`,
         () => imageLoaded(planetIndex)
       );
     }
@@ -130,7 +132,7 @@ function imageLoaded(planetIndex) {
 
 function setup() {
   createCanvas(screenLayout.screenWidth, screenLayout.screenHeight);
-
+  //frameRate(30);
   // Initialize the 2D array for minimapImg
   
   minimapImg = Array(totalNumberOfPlanets).fill().map(() => []);
@@ -210,7 +212,7 @@ function generateTowers(count) {
 }
 //s
 function preload() { 
-  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1");
+  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1a");
 
   shared = partyLoadShared("shared", {
     gameObjects: [],  // Start with empty array
@@ -299,7 +301,19 @@ function draw() {
     updateTowerCount();
   }
 
+  // Make sure me.planetIndex is valid and in range
+  if (me.planetIndex === undefined || me.planetIndex < 0 || me.planetIndex >= solarSystem.planets.length) {
+    me.planetIndex = 0; // Default to first planet
+  }
+
   selectedPlanet = solarSystem.planets[me.planetIndex];
+  
+  // Safety check for selectedPlanet before accessing its properties
+  if (!selectedPlanet) {
+    console.error("Selected planet is undefined, using default planet");
+    selectedPlanet = solarSystem.planets[0]; // Use first planet as fallback
+  }
+  
   fixedMinimap.update(selectedPlanet.diameterPlanet, selectedPlanet.xWarpGateUp, selectedPlanet.yWarpGateUp, selectedPlanet.xWarpGateDown, selectedPlanet.yWarpGateDown, selectedPlanet.diameterWarpGate);
   activeFlights = flights.filter(f => f.planetIndex >= 0); // Only target visible flights - changed filter
 
@@ -590,6 +604,11 @@ function receiveNewDataFromHost() {
 }
 
 function drawGameArea() {
+  if (!selectedPlanet) {
+    console.error("Selected planet is undefined in drawGameArea");
+    return; // Skip drawing if planet is undefined
+  }
+  
   if (detailsLevel.showGameAreaImage) {
     let cropX = me.xGlobal;
     let cropY = me.yGlobal;
@@ -915,7 +934,7 @@ function moveMe() {
   newxGlobal = constrain(newxGlobal, 0, selectedPlanet.diameterPlanet);
   newyGlobal = constrain(newyGlobal, 0, selectedPlanet.diameterPlanet);
 
-  if (selectedPlanet.onPlanet(xTemp + newxGlobal, yTemp + newyGlobal)) {
+  if (selectedPlanet && selectedPlanet.onPlanet(xTemp + newxGlobal, yTemp + newyGlobal)) {
     me.xGlobal = newxGlobal;
     me.yGlobal = newyGlobal;
     me.xLocal = xTemp;
@@ -990,6 +1009,10 @@ function checkCollisionsWithFlight(flight) {
 }
 
 function checkCollisionsWithWarpGate() {
+  if (!selectedPlanet) {
+    return; // Skip collision check if planet is undefined
+  }
+  
   // Check if warp gate is in cooldown
   const currentTime = millis();
   const isCooldown = currentTime - me.lastWarpTime < gameConstants.warpCooldownTime;

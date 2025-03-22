@@ -514,7 +514,7 @@ class Flight {
       if (detailsLevel.showGameAreaImage) {
   
         if (animationReady) {
-          if (frameCount % 40 === 0) {
+          if (frameCount % 3 === 0) {
             this.i++;
             // Use the correct frame count for this planet
             if (this.i >= totalImagesPerPlanet[this.planetIndex]) {
