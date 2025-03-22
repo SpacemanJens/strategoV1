@@ -12,7 +12,7 @@ let minimapImg = []; // jenskh
 
 let imagesLoaded = 0; // Counter to track loaded images
 let totalNumberOfPlanets = 5;
-let totalImagesPerPlanet = [1317, 2190, 75, 251, 125]; // Number of frames for each planet
+let totalImagesPerPlanet = [1317, 2190, 1657, 1886, 1889]; // Number of frames for each planet
 
 // Add these variables for debugging and tracking
 let totalExpectedImages = 0;
@@ -66,7 +66,7 @@ let counter = 0
 let xText = 0;
 let gameObjects = []; // Initialize as empty array
 //let canonTowerCount = 5; // Store the previous tower count - Declare here
-let batchSize = 10; // Number of images to load per batch
+let batchSize = 30; // Number of images to load per batch
 let batchIndex = 0; // Keeps track of which batch is loading
 let framesLoaded = 0;
 
@@ -107,7 +107,7 @@ function loadNextBatchForPlanet(planetIndex, batchIndex) {
 
     // Schedule next batch only if there are more frames to load
     if (end < totalFrames) {
-      setTimeout(() => loadNextBatchForPlanet(planetIndex, batchIndex + 1), 1000);
+      setTimeout(() => loadNextBatchForPlanet(planetIndex, batchIndex + 1), 500);
     }
   }
 }
