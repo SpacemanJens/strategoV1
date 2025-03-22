@@ -316,7 +316,7 @@ class Flight {
   
     draw() {
       if (detailsLevel.showGameAreaImage) {
-        image(fixedMinimapImages[me.planetIndex], this.xMinimap - this.diameterMinimap / 2, this.yMinimap - this.diameterMinimap / 2, this.diameterMinimap, this.diameterMinimap);
+        image(fixedMinimapImage[me.planetIndex], this.xMinimap - this.diameterMinimap / 2, this.yMinimap - this.diameterMinimap / 2, this.diameterMinimap, this.diameterMinimap);
   
         // Get colors consistent with the selected planet
         const colorScheme = getPlanetColorScheme(me.planetIndex);
@@ -523,14 +523,14 @@ class Flight {
           }
   
           // Use this planet's images from the 2D array
-          if (minimapImg[this.planetIndex] && minimapImg[this.planetIndex][this.i]) {
+//          if (minimapImg[this.planetIndex] && minimapImg[this.planetIndex][this.i]) {
             image(minimapImg[this.planetIndex][this.i], this.x, this.y, this.size, this.size);
-          } else {
+//          } else {
             // Fallback if image not loaded
-            image(fixedMinimapImages[me.planetIndex], this.x, this.y, this.size, this.size);
-          }
+  //          image(fixedMinimapImage[this.i], this.x, this.y, this.size, this.size);
+//          }
         } else {
-          image(fixedMinimapImages[me.planetIndex], this.x, this.y, this.size, this.size);
+          image(miniPlanetImage[this.planetIndex], this.x, this.y, this.size, this.size);
         }
   
       } else {
@@ -639,11 +639,11 @@ class Flight {
       // constructor(angle, baseSpeed, distance, tiltEffect, baseSize, color {
       this.planets = [
         //      new Planet(10, 0.7, 400, 0.05, 40, [0, 102, 204]), xWarpGateUp, yWarpGateUp, xWarpGateDown, yWarpGateDown, diameterWarpGate
-        new Planet(10, 0.7, 400, 0.05, 3000, [0, 102, 204], 0, 595, 555, 1881, 2512, 100),
-        new Planet(90, 0.5, 700, 0.08, 3500, [0, 122, 174], 0, 1267, 1780, 1970, 2708, 100),
-        new Planet(190, 0.4, 1100, 0.04, 5000, [0, 142, 144], 0, 3225, 2809, 2176, 4643, 100),
-        new Planet(270, 0.3, 1400, 0.06, 4000, [0, 162, 114], 0, 1611, 2370, 1070, 2665, 100),
-        new Planet(350, 0.25, 1800, 0.03, 3500, [0, 182, 84], 0, 1893, 2933, 2878, 1913, 100)
+        new Planet(10, 0.7, 400, 0.05, 3000, [0, 102, 204], 69, 595, 555, 1881, 2512, 100),
+        new Planet(90, 0.5, 700, 0.08, 3500, [0, 122, 174], 2000, 1267, 1780, 1970, 2708, 100),
+        new Planet(190, 0.4, 1100, 0.04, 5000, [0, 142, 144], 284, 3225, 2809, 2176, 4643, 100),
+        new Planet(270, 0.3, 1400, 0.06, 4000, [0, 162, 114], 1617, 1611, 2370, 1070, 2665, 100),
+        new Planet(350, 0.25, 1800, 0.03, 3500, [0, 182, 84], 1660, 1893, 2933, 2878, 1913, 100)
       ];
   
       this.blackHole = new BlackHole(75, 5);

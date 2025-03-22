@@ -212,7 +212,7 @@ function generateTowers(count) {
 }
 //s
 function preload() { 
-  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1a");
+  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1p1");
 
   shared = partyLoadShared("shared", {
     gameObjects: [],  // Start with empty array
@@ -229,12 +229,19 @@ function preload() {
   for (let i = 0; i < 13; i++) {
     flightImages[i] = loadImage(`images/flight/flight${i}.png`);
   }
-  fixedMinimapImages = [];
-  fixedMinimapImages[0] = loadImage("images/planet0/planet0minimapWithWarpGate.png");
-  fixedMinimapImages[1] = loadImage("images/planet1/planet1minimapWithWarpGate.png"); // You should replace these with
-  fixedMinimapImages[2] = loadImage("images/planet2/planet2minimapWithWarpGate.png"); // actual images for each planet
-  fixedMinimapImages[3] = loadImage("images/planet3/planet3minimapWithWarpGate.png"); // when you have them
-  fixedMinimapImages[4] = loadImage("images/planet4/planet4minimapWithWarpGate.png");
+  fixedMinimapImage = [];
+  fixedMinimapImage[0] = loadImage("images/planet0/planet0minimapWithWarpGate.png");
+  fixedMinimapImage[1] = loadImage("images/planet1/planet1minimapWithWarpGate.png"); // You should replace these with
+  fixedMinimapImage[2] = loadImage("images/planet2/planet2minimapWithWarpGate.png"); // actual images for each planet
+  fixedMinimapImage[3] = loadImage("images/planet3/planet3minimapWithWarpGate.png"); // when you have them
+  fixedMinimapImage[4] = loadImage("images/planet4/planet4minimapWithWarpGate.png");
+
+  miniPlanetImage = [];
+  miniPlanetImage[0] = loadImage("images/planet0/minimap/planet0_69.png");
+  miniPlanetImage[1] = loadImage("images/planet1/minimap/planet1_2000.png"); // You should replace these with
+  miniPlanetImage[2] = loadImage("images/planet2/minimap/planet2_284.png"); // actual images for each planet
+  miniPlanetImage[3] = loadImage("images/planet3/minimap/planet3_1617.png"); // when you have them
+  miniPlanetImage[4] = loadImage("images/planet4/minimap/planet4_1660.png");
 
   planetBackgroundImages = [];
   planetBackgroundImages[0] = loadImage("images/planet0/planet0withWarpGate.png");
