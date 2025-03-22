@@ -63,10 +63,10 @@ const gameConstants = {
 }
 let meHost = false;
 let counter = 0
-let xText = 0; 
+let xText = 0;
 let gameObjects = []; // Initialize as empty array
 //let canonTowerCount = 5; // Store the previous tower count - Declare here
-let batchSize = 10; // Number of images to load per batch
+let batchSize = 20; // Number of images to load per batch
 let batchIndex = 0; // Keeps track of which batch is loading
 let framesLoaded = 0;
 
@@ -139,9 +139,9 @@ function setup() {
 
   // Out commented while developing
   // Calculate total expected images
-  totalExpectedImages = totalImagesPerPlanet.reduce((sum, count) => sum + count, 0);
-  console.log(`Total expected images: ${totalExpectedImages}`);
-  loadFrames()
+  //totalExpectedImages = totalImagesPerPlanet.reduce((sum, count) => sum + count, 0);
+  //console.log(`Total expected images: ${totalExpectedImages}`);
+  //loadFrames()
 
   fixedMinimap = new BasicMinimap(x = 250, y = 250, diameter = 300, color = 'grey', diameterPlanet = screenLayout.diameterPlanet);
 
@@ -214,7 +214,7 @@ function generateTowers(count) {
 }
 
 function preload() { 
-  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1privateV1");
+  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV2private");
 
   shared = partyLoadShared("shared", {
     gameObjects: [],  // Start with empty array
@@ -237,13 +237,6 @@ function preload() {
   fixedMinimapImage[2] = loadImage("images/planet2/planet2minimapWithWarpGate.png"); // actual images for each planet
   fixedMinimapImage[3] = loadImage("images/planet3/planet3minimapWithWarpGate.png"); // when you have them
   fixedMinimapImage[4] = loadImage("images/planet4/planet4minimapWithWarpGate.png");
-
-  miniPlanetImage = [];
-  miniPlanetImage[0] = loadImage("images/planet0/minimap/planet0_69.png");
-  miniPlanetImage[1] = loadImage("images/planet1/minimap/planet1_2000.png"); // You should replace these with
-  miniPlanetImage[2] = loadImage("images/planet2/minimap/planet2_284.png"); // actual images for each planet
-  miniPlanetImage[3] = loadImage("images/planet3/minimap/planet3_1617.png"); // when you have them
-  miniPlanetImage[4] = loadImage("images/planet4/minimap/planet4_1660.png");
 
   planetBackgroundImages = [];
   planetBackgroundImages[0] = loadImage("images/planet0/planet0withWarpGate.png");
@@ -298,6 +291,7 @@ function draw() {
 
   // Debug loading status every 60 frames
 // JENSK Out commented while developing
+/*
   debugFrameCount++;
   if (debugFrameCount >= 60) {
     debugFrameCount = 0;
@@ -305,7 +299,7 @@ function draw() {
       console.log(`Still loading: ${imagesLoaded}/${totalExpectedImages} (${Math.floor(imagesLoaded / totalExpectedImages * 100)}%)`);
     }
   }
-    
+    */
 
   if (!meHost && partyIsHost()) {
     meHost = true;
