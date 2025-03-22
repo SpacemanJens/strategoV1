@@ -63,10 +63,10 @@ const gameConstants = {
 }
 let meHost = false;
 let counter = 0
-let xText = 0;
+let xText = 0; 
 let gameObjects = []; // Initialize as empty array
 //let canonTowerCount = 5; // Store the previous tower count - Declare here
-let batchSize = 20; // Number of images to load per batch
+let batchSize = 10; // Number of images to load per batch
 let batchIndex = 0; // Keeps track of which batch is loading
 let framesLoaded = 0;
 
