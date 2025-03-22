@@ -51,7 +51,7 @@ const gameConstants = {
   diameterFlight: 100, // can be adjusted
   diameterBullet: 15,
   minimapMarkerDiamter: 10,
-  warpCooldownTime: 30000, // 10 seconds cooldown for warping
+  warpCooldownTime: 3000, // 30000 seconds cooldown for warping
   shootingIntervals: {
     'Extreem (0.1s)': 100,
     'Very fast (0.3s)': 300,
@@ -107,7 +107,7 @@ function loadNextBatchForPlanet(planetIndex, batchIndex) {
 
     // Schedule next batch only if there are more frames to load
     if (end < totalFrames) {
-      setTimeout(() => loadNextBatchForPlanet(planetIndex, batchIndex + 1), 500);
+      setTimeout(() => loadNextBatchForPlanet(planetIndex, batchIndex + 1), 800);
     }
   }
 }
@@ -174,6 +174,7 @@ function onLocalScreenArea(xLocal, yLocal) {
 
 function updateTowerCount() {
   gameObjects = generateTowers(shared.canonTowerCount);
+  // Set planetIndex to 3 for all towers
   shared.gameObjects = gameObjects.map(tower => ({
     xGlobal: tower.xGlobal,
     yGlobal: tower.yGlobal,
@@ -182,35 +183,42 @@ function updateTowerCount() {
     bullets: [],
     angle: 0,
     hits: Array(15).fill(0),
-    planetIndex: 0,
+    planetIndex: 3, // Set to planet 3 specifically
     lastShotTime: 0,
   }));
 }
 
 function generateTowers(count) {
   const towers = [];
-  const radius = screenLayout.diameterPlanet / 12; // Distance from center 
-  const angleStep = (2 * PI) / count;
-
-  for (let i = 0; i < count; i++) {
-    const angle = i * angleStep;
-    const x = screenLayout.diameterPlanet / 2 + radius * cos(angle);
-    const y = screenLayout.diameterPlanet / 2 + radius * sin(angle);
-
+  
+  // Table of predefined tower locations
+  const towerTable = [
+    { x: 1000, y: 1000, color: 'red' },     // First tower
+    { x: 1500, y: 800, color: 'blue' },     // Second tower
+    { x: 700, y: 1600, color: 'green' }     // Third tower
+  ];
+  
+  // Add up to three towers from the table
+  const numTowers = Math.min(count, towerTable.length);
+  
+  for (let i = 0; i < numTowers; i++) {
+    const tower = towerTable[i];
+    
     towers.push(new Canon({
       objectNumber: i,
       objectName: `canon${i}`,
-      xGlobal: x,
-      yGlobal: y,
+      xGlobal: tower.x,
+      yGlobal: tower.y,
       diameter: 60,
-      xSpawnGlobal: x,
-      ySpawnGlobal: y,
-      color: 'red',
+      xSpawnGlobal: tower.x,
+      ySpawnGlobal: tower.y,
+      color: tower.color,
     }));
   }
+  
   return towers;
 }
-//s
+
 function preload() { 
   partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1p1");
 
@@ -359,7 +367,7 @@ function draw() {
     fixedMinimap.draw();
 
     activeFlights.forEach((flight) => {
-      if (flight.planetIndex >= 0) {
+      if (flight.planetIndex === me.planetIndex) {
         fixedMinimap.drawObject(flight.xGlobal + flight.xLocal, flight.yGlobal + flight.yLocal, gameConstants.minimapMarkerDiamter, flight.color);
       }
     });
@@ -367,12 +375,14 @@ function draw() {
     fixedMinimap.drawObject(selectedPlanet.xWarpGateDown, selectedPlanet.yWarpGateDown, gameConstants.minimapMarkerDiamter, 'magenta');
   }
 
-  // Draw Canon Towers for all players
-  gameObjects.forEach(canon => {
-    canon.drawCanonTower();
-    canon.drawBullets();
-    canon.drawScore();
-  });
+  // Draw Canon Towers for all players - only on planet 3
+  if (me.planetIndex === 3) {
+    gameObjects.forEach(canon => {
+      canon.drawCanonTower();
+      canon.drawBullets();
+      canon.drawScore();
+    });
+  }
 
   let offSetY = 500;
   if (partyIsHost()) {
@@ -401,18 +411,20 @@ function draw() {
     }
   });
 
-  // Count visible bullets from canons
-  gameObjects.forEach(canon => {
-    numberOfBullets += canon.bullets.length;
-    // Count visible bullets
-    canon.bullets.forEach(bullet => {
-      let xLocal = bullet.xGlobal - me.xGlobal;
-      let yLocal = bullet.yGlobal - me.yGlobal;
-      if (onLocalScreenArea(xLocal, yLocal)) {
-        numberOfVisualBullets++;
-      }
+  // Count visible bullets from canons - only if on planet 3
+  if (me.planetIndex === 3) {
+    gameObjects.forEach(canon => {
+      numberOfBullets += canon.bullets.length;
+      // Count visible bullets
+      canon.bullets.forEach(bullet => {
+        let xLocal = bullet.xGlobal - me.xGlobal;
+        let yLocal = bullet.yGlobal - me.yGlobal;
+        if (onLocalScreenArea(xLocal, yLocal)) {
+          numberOfVisualBullets++;
+        }
+      });
     });
-  });
+  }
 
   fill('gray');
   text("Total number of bullets: " + numberOfBullets, 20, offSetY);
@@ -447,7 +459,7 @@ function draw() {
     pop()
     activeFlights.forEach((flight) => {
       if (flight.planetIndex >= 0) {
-        selectedPlanet.drawFlight(flight);
+        solarSystem.planets[flight.planetIndex].drawFlight(flight);
       }
     });
   }
@@ -527,53 +539,57 @@ function keyPressed() {
 }
 
 function performHostAction() {
-  gameObjects.forEach((canon, index) => {
+  // Only process canon logic if on planet 3
+  if (me.planetIndex === 3) {
+    gameObjects.forEach((canon, index) => {
+      canon.move();
 
-    canon.move();
-
-    const currentTime = millis();
-    //        const selectedInterval = gameConstants.shootingIntervals[shootingIntervalSelect.value()];
-    const selectedInterval = shared.canonTowerShootingInterval;
-    // Check if selectedInterval is a valid number
-    if (typeof selectedInterval === 'number') {
-      if (currentTime - canon.lastShotTime > selectedInterval) {
-        if (activeFlights.length > 0) {
-          const nearestFlight = canon.findNearestFlight();
-
-          if (nearestFlight) {
-            canon.shoot(nearestFlight);
-            canon.lastShotTime = currentTime;
+      const currentTime = millis();
+      const selectedInterval = shared.canonTowerShootingInterval;
+      // Check if selectedInterval is a valid number
+      if (typeof selectedInterval === 'number') {
+        if (currentTime - canon.lastShotTime > selectedInterval) {
+          if (activeFlights.length > 0) {
+            // Only target flights that are on planet 3
+            const flightsOnPlanet3 = activeFlights.filter(f => f.planetIndex === 3);
+            if (flightsOnPlanet3.length > 0) {
+              const nearestFlight = canon.findNearestFlight(flightsOnPlanet3);
+              
+              if (nearestFlight) {
+                canon.shoot(nearestFlight);
+                canon.lastShotTime = currentTime;
+              }
+            }
           }
         }
+      } else {
+        console.warn("Invalid shooting interval:", shootingIntervalSelect.value());
       }
-    } else {
-      console.warn("Invalid shooting interval:", shootingIntervalSelect.value());
-    }
 
-    canon.moveBullets(); // Move bullets before drawing
-    canon.checkCollisionsWithFlights();  // Add this line
+      canon.moveBullets(); // Move bullets before drawing
+      canon.checkCollisionsWithFlights();  // Add this line
 
-    // Sync to shared state
-    shared.gameObjects[index] = {
-      ...shared.gameObjects[index],
-      xGlobal: canon.xGlobal,
-      yGlobal: canon.yGlobal,
-      //          buls: JSON.parse(JSON.stringify(canon.buls)), // Deep copy
-      bullets: canon.bullets, // Deep copyfhg
-      angle: canon.angle,
-      lastShotTime: canon.lastShotTime,
-      hits: canon.hits, // Update shared state to include hits
-    };
-  });
+      // Sync to shared state
+      shared.gameObjects[index] = {
+        ...shared.gameObjects[index],
+        xGlobal: canon.xGlobal,
+        yGlobal: canon.yGlobal,
+        bullets: canon.bullets,
+        angle: canon.angle,
+        lastShotTime: canon.lastShotTime,
+        hits: canon.hits,
+      };
+    });
 
-  // Calculate total hits from canon towers for each player
-  let totalCanonHits = Array(15).fill(0);
-  gameObjects.forEach(canon => {
-    for (let i = 0; i < totalCanonHits.length; i++) {
-      totalCanonHits[i] += canon.hits[i];
-    }
-  });
-  shared.canonTowerHits = totalCanonHits;
+    // Calculate total hits from canon towers for each player
+    let totalCanonHits = Array(15).fill(0);
+    gameObjects.forEach(canon => {
+      for (let i = 0; i < totalCanonHits.length; i++) {
+        totalCanonHits[i] += canon.hits[i];
+      }
+    });
+    shared.canonTowerHits = totalCanonHits;
+  }
 }
 
 function receiveNewDataFromHost() {
@@ -682,14 +698,14 @@ function drawGameArea() {
     pop();
   }
 
-  // Draw flights and bullets on top
+  // Draw flights and bullets on top - only if they're on the same planet
   activeFlights.forEach((flight) => {
-    if (flight.planetIndex >= 0) {
+    if (flight.planetIndex === me.planetIndex) {
       flight.drawFlight();
       flight.drawBullets();
     }
   });
-}
+} 
 
 // Helper function to draw a radial gradient with array colors instead of color() objects
 function drawRadialGradient(x, y, diameter, colorCenterArray, colorEdgeArray) {
@@ -986,9 +1002,8 @@ function moveMe() {
 }
 
 function checkCollisions() {
-
   activeFlights.forEach((flight) => {
-    if (flight.playerName != me.playerName) {
+    if (flight.playerName != me.playerName && flight.planetIndex === me.planetIndex) {
       checkCollisionsWithFlight(flight);
     }
   });
@@ -1037,7 +1052,10 @@ function checkCollisionsWithWarpGate() {
     } else {
       me.planetIndex++;
     }
+    me.xGlobal = solarSystem.planets[me.planetIndex].xWarpGateUp - me.xLocal; 
+    me.yGlobal = solarSystem.planets[me.planetIndex].yWarpGateUp - me.yLocal; 
     me.lastWarpTime = currentTime; // Set the last warp time
+
     return;
   }
 
@@ -1045,10 +1063,12 @@ function checkCollisionsWithWarpGate() {
 
   if (di < selectedPlanet.diameterWarpGate / 2) {
     if (me.planetIndex === 0) {
-      me.planetIndex = 4;
+      me.planetIndex = 4; 
     } else {
       me.planetIndex--;
     }
+    me.xGlobal = solarSystem.planets[me.planetIndex].xWarpGateDown - me.xLocal; 
+    me.yGlobal = solarSystem.planets[me.planetIndex].yWarpGateDown - me.yLocal; 
     me.lastWarpTime = currentTime; // Set the last warp time
     return;
   }
