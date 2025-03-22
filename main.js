@@ -12,7 +12,8 @@ let minimapImg = []; // jenskh
 
 let imagesLoaded = 0; // Counter to track loaded images
 let totalNumberOfPlanets = 5;
-let totalImagesPerPlanet = [1317, 2190, 1657, 1886, 1889]; // Number of frames for each planet
+//let totalImagesPerPlanet = [1317, 2190, 1657, 1886, 1889]; // Number of frames for each planet
+let totalImagesPerPlanet = [2, 2, 2, 2, 2]; // Number of frames for each planet
 
 // Add these variables for debugging and tracking
 let totalExpectedImages = 0;
@@ -139,9 +140,9 @@ function setup() {
 
   // Out commented while developing
   // Calculate total expected images
-  //totalExpectedImages = totalImagesPerPlanet.reduce((sum, count) => sum + count, 0);
-  //console.log(`Total expected images: ${totalExpectedImages}`);
-  //loadFrames()
+  totalExpectedImages = totalImagesPerPlanet.reduce((sum, count) => sum + count, 0);
+  console.log(`Total expected images: ${totalExpectedImages}`);
+  loadFrames()
 
   fixedMinimap = new BasicMinimap(x = 250, y = 250, diameter = 300, color = 'grey', diameterPlanet = screenLayout.diameterPlanet);
 
@@ -214,7 +215,7 @@ function generateTowers(count) {
 }
 
 function preload() { 
-  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV2private");
+  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV3private");
 
   shared = partyLoadShared("shared", {
     gameObjects: [],  // Start with empty array
@@ -291,7 +292,7 @@ function draw() {
 
   // Debug loading status every 60 frames
 // JENSK Out commented while developing
-/*
+
   debugFrameCount++;
   if (debugFrameCount >= 60) {
     debugFrameCount = 0;
@@ -299,7 +300,7 @@ function draw() {
       console.log(`Still loading: ${imagesLoaded}/${totalExpectedImages} (${Math.floor(imagesLoaded / totalExpectedImages * 100)}%)`);
     }
   }
-    */
+    
 
   if (!meHost && partyIsHost()) {
     meHost = true;
