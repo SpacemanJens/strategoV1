@@ -214,7 +214,7 @@ function generateTowers(count) {
 }
 
 function preload() { 
-  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1p1");
+  partyConnect("wss://p5js-spaceman-server-29f6636dfb6c.herokuapp.com", "jkv-strategoV1public1");
 
   shared = partyLoadShared("shared", {
     gameObjects: [],  // Start with empty array
