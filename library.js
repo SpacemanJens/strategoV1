@@ -585,7 +585,7 @@ class Flight {
     drawFlight(flight) {
       //  fill('yellow')
       //    fill(flight.color);
-      
+
       fill('red');
       let posX = solarSystem.x + this.x + map(flight.xGlobal + flight.xLocal, 0, this.diameterPlanet, 0, this.size);
       let posY = solarSystem.y + this.y + map(flight.yGlobal + flight.yLocal, 0, this.diameterPlanet, 0, this.size);
@@ -740,3 +740,126 @@ class Flight {
       ellipse(this.x, this.y, 1, 1);
     }
   }
+
+  // New ImageIndex8Manager class to manage all animations for image index 8
+class planet3EffectManager {
+    constructor() {
+
+        // Warpgate A animation properties
+        this.warpgateAImages = [];
+        this.warpgateAIndex = 0;
+        this.lastWarpgateAUpdate = 0;
+        this.warpgateAAnimationSpeed = 0.15;
+        this.warpgateAWidth = 109;
+        this.warpgateAHeight = 92;
+
+        // LightTower animation properties
+        this.warpgateBImages = [];
+        this.warpgateBIndex = 0;
+        this.lastWarpgateBUpdate = 0;
+        this.warpgateBDirection = 1;
+        this.warpgateBAnimationSpeed = 0.15;
+        this.warpgateBWidth = 207;
+        this.warpgateBHeight = 161;
+    }
+
+    // Load all animation assets
+    loadImages() {
+        // Load warpgate A images
+        for (let i = 1; i <= 6; i++) {
+            const frameName = `p3warpgateA${i}`;
+            this.warpgateAImages.push(loadImage(`images/p3warpgateA/${frameName}.png`));
+        }
+
+        // Load warpgate B images
+        for (let i = 1; i <= 13; i++) {
+            const frameName = `p3warpgateB${i}`;
+            this.warpgateBImages.push(loadImage(`images/p3warpgateB/${frameName}.png`));
+        }
+    }
+
+    // Reset all animations
+    reset() {
+        // Reset warpgate animation
+        this.warpgateAIndex = 0;
+        this.lastWarpgateAUpdate = 0;
+
+        // Reset lightTower animation
+        this.warpgateBIndex = 0;
+        this.warpgateBDirection = 1;
+        this.lastWarpgateBUpdate = 0;
+    }
+
+    updateWarpgateAAnimation() {
+        const currentTime = millis();
+
+        if (currentTime - this.lastWarpgateAUpdate > 1000 * this.warpgateAAnimationSpeed) {
+            // Correctly increment the warpgate A index with proper bounds checking
+            this.warpgateAIndex = (this.warpgateAIndex + 1) % this.warpgateAImages.length;
+
+            this.lastWarpgateAUpdate = currentTime;
+        }
+    }
+
+    // Update warpgate animation frames using ping-pong effect
+    updateWarpgateBAnimation() {
+        const currentTime = millis();
+
+        if (currentTime - this.lastWarpgateBUpdate > 1000 * this.warpgateBAnimationSpeed) {
+            // Update the frame index based on current direction
+            this.warpgateBIndex += this.warpgateBDirection;
+
+            // Make sure we stay within the image array bounds
+            if (this.warpgateBIndex >= this.warpgateBImages.length - 1) {
+                this.warpgateBIndex = this.warpgateBImages.length - 1;
+                this.warpgateBDirection = -1; // Start going backward
+            } else if (this.warpgateBIndex <= 0) {
+                this.warpgateBIndex = 0;
+                this.warpgateBDirection = 1; // Start going forward
+            }
+
+            this.lastWarpgateBUpdate = currentTime;
+        }
+    }
+
+    // Draw the warpgate animation at specific position
+    drawWarpgateAAnimation(panelX, panelY) {
+        if (this.warpgateAImages.length === 0) return; // Skip if no images loaded
+
+        // Calculate fixed position relative to the panel
+        const warpgateX = panelX + 191; // Position from left edge of panel
+        const warpgateY = panelY + 382; // Position from top edge of panel
+
+        // Draw current frame
+        const currentFrame = this.warpgateAImages[this.warpgateAIndex];
+        if (currentFrame) {
+            image(currentFrame, warpgateX, warpgateY, this.warpgateAWidth, this.warpgateAHeight);
+        }
+    }
+
+    // Draw the warpgate animation at specific position
+    drawWarpgateBAnimation(panelX, panelY) {
+        if (this.warpgateBImages.length === 0) return; // Skip if no images loaded
+
+        // Calculate fixed position relative to the panel
+        const warpgateX = panelX + 420; // Position from left edge of panel
+        const warpgateY = panelY + 169; // Position from top edge of panel
+
+        // Draw current frame
+        const currentFrame = this.warpgateBImages[this.warpgateBIndex];
+        if (currentFrame) {
+            image(currentFrame, warpgateX, warpgateY, this.warpgateBWidth, this.warpgateBHeight);
+        }
+    }
+
+    // Update and render all animations for image index 11
+    updateAndDraw(panelX, panelY, enlargedSize) {
+        // Update animations
+        this.updateWarpgateAAnimation();
+        this.updateWarpgateBAnimation();
+
+        // Draw all elements
+        this.drawWarpgateAAnimation(panelX, panelY);
+        this.drawWarpgateBAnimation(panelX, panelY);
+    }
+}

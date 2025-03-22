@@ -137,17 +137,11 @@ function setup() {
   
   minimapImg = Array(totalNumberOfPlanets).fill().map(() => []);
 
+  // Out commented while developing
   // Calculate total expected images
   totalExpectedImages = totalImagesPerPlanet.reduce((sum, count) => sum + count, 0);
   console.log(`Total expected images: ${totalExpectedImages}`);
-
   loadFrames()
-  /*
-    for (let i = 0; i < totalImages; i++) {
-  
-          minimapImg[i] = loadImage(`images/planetA/planetAminimap2/planetA_${i}.png`, imageLoaded);
-      //    minimapImg[i] = loadImage(`images/planetA/planetAminimap/planetA_${i}.png`, imageLoaded);
-        }*/
 
   fixedMinimap = new BasicMinimap(x = 250, y = 250, diameter = 300, color = 'grey', diameterPlanet = screenLayout.diameterPlanet);
 
@@ -303,6 +297,7 @@ function getPlanetColorScheme(planetIndex) {
 function draw() {
 
   // Debug loading status every 60 frames
+// JENSK Out commented while developing
   debugFrameCount++;
   if (debugFrameCount >= 60) {
     debugFrameCount = 0;
@@ -310,6 +305,7 @@ function draw() {
       console.log(`Still loading: ${imagesLoaded}/${totalExpectedImages} (${Math.floor(imagesLoaded / totalExpectedImages * 100)}%)`);
     }
   }
+    
 
   if (!meHost && partyIsHost()) {
     meHost = true;
